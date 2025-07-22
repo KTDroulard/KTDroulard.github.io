@@ -16,7 +16,7 @@
     
     
       
-        <title>2025 - Kyle Droulard | Portfolio</title>
+        <title>Kioptrix - Kyle Droulard | Portfolio</title>
       
     
     
@@ -58,7 +58,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#2025" class="md-skip">
+        <a href="#kioptrix" class="md-skip">
           Skip to content
         </a>
       
@@ -94,7 +94,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              2025
+              Kioptrix
             
           </span>
         </div>
@@ -212,36 +212,12 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../writeups/" class="md-nav__link">
+      <a href=".." class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
-    Writeups
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-    
-      
-      
-  
-  
-  
-    
-  
-  
-    <li class="md-nav__item">
-      <a href="../../" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    Soapbox
+    CTFs
     
   </span>
   
@@ -300,53 +276,152 @@
             
           
           
-  <div class="md-content" data-md-component="content">
-    <div class="md-content__inner">
-      <header class="md-typeset">
-        <h1 id="2025">2025</h1>
-      </header>
-      
-        <article class="md-post md-post--excerpt">
-  <header class="md-post__header">
-    
-    <div class="md-post__meta md-meta">
-      <ul class="md-meta__list">
-        <li class="md-meta__item">
-          <time datetime="2025-07-21 00:00:00+00:00">July 21, 2025</time></li>
-        
-        
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="kioptrix">Kioptrix</h1>
+<h1 id="about">About</h1>
+<p><strong>Target</strong>: Kioptrix Level 1 Virtual Machine (VM downloaded <a href="https://www.vulnhub.com/entry/kioptrix-level-1-1,22/">here</a>.)</p>
+<p><strong>Reporter:</strong> Kyle Droulard</p>
+<p><strong>Summary:</strong> During assessment, multiple legacy services were identified on the target machine. Exploitation of a known Apache vulnerability (<a href="https://nvd.nist.gov/vuln/detail/CVE-2002-0082">CVE-2002-0082</a>) resulted in root-level access. Several other misconfigurations were noted, including outdated Apache and SSH services.</p>
+<h2 id="initial-discovery">Initial Discovery</h2>
+<p><strong>Action:</strong> Discover the IP for our vulnerable host</p>
+<p><strong>Tool:</strong> <a href="https://www.google.com/url?sa=t&amp;rct=j&amp;q=&amp;esrc=s&amp;source=web&amp;cd=&amp;cad=rja&amp;uact=8&amp;ved=2ahUKEwim45KTutCOAxUJlGoFHfRdEawQFnoECBkQAQ&amp;url=https%3A%2F%2Fwww.stationx.net%2Fnmap-ping-sweep%2F&amp;usg=AOvVaw3FEqmn2J1D_yUNe-PKZxuW&amp;opi=89978449">nmap ping sweep</a>, or <a href="https://www.hackercoolmagazine.com/beginners-guide-to-netdiscover/?srsltid=AfmBOopGG8It26r71ZGPr0JTNuINpMuvOY0IsTazMXT1PhVmY7qXeMu7">netdiscover</a>.</p>
+<p><img alt="image.png" src="../../../images/Kioptrix/image.png" /></p>
+<h2 id="port-enumeration">Port Enumeration</h2>
+<p><strong>Action:</strong> Conduct initial discovery of vulnerable services</p>
+<p><strong>Tool:</strong> Nmap</p>
+<p><strong>Command:</strong> <code>nmap -T5 -A &lt;host_ip&gt;</code></p>
+<p><strong>Analysis:</strong> AV is not in play so a quick scan can be conducted </p>
+<p><strong>Additional Resources:</strong>  <a href="https://www.stationx.net/nmap-cheat-sheet/">Nmap Cheat Sheet</a></p>
+<p><img alt="image.png" src="../../../images/Kioptrix/image1.png" /></p>
+<h3 id="analysis">Analysis</h3>
+<p><strong>Observation:</strong> SSH, HTTP and SMB are exposed </p>
+<p><strong>Action:</strong> Investigate Web Exploits, File Shares and possible SSH vulnerabilities. (Brute Forcing is not allowed so Hydra will be skipped)</p>
+<h2 id="http-enumeration">HTTP Enumeration</h2>
+<p><strong>Goal:</strong> Discover possible vulnerable endpoints </p>
+<p><strong>Tools:</strong> Burp Suite, dirbuster or nikto.</p>
+<p><strong>Additional Resources:</strong> </p>
+<ul>
+<li>https://www.freecodecamp.org/news/an-introduction-to-web-server-scanning-with-nikto/</li>
+<li><a href="https://www.kali.org/tools/dirbuster/">dirbuster | Kali Linux Tools</a></li>
+</ul>
+<h3 id="findings"><strong>Findings</strong></h3>
+<p><strong>Finding:</strong> http[://]192[.]168[.]1[.]107/manual/mod </p>
+<p><strong>Analysis:</strong> Apache modules commonly stored here. </p>
+<p><strong>Action:</strong> Nothing sensitive seems immediately exposed, this is noted for further inspection.</p>
+<p><strong>Outcome:</strong> Most Likely Deadend</p>
+<p><img alt="image.png" src="../../../images/Kioptrix/image2.png" /></p>
+<p><strong>Finding:</strong> http[://]192[.]168[.]1[.]107/test.php</p>
+<p><strong>Analysis:</strong> Appears to be executing php on the page.</p>
+<p><strong>Action:</strong> Does not seem to be a way to inject code here, this is noted for further inspection.</p>
+<p><strong>Outcome:</strong> Most Likely Deadend</p>
+<p><img alt="image.png" src="../../../images/Kioptrix/image3.png" /></p>
+<p><strong>Finding:</strong> Information Disclosure vulnerability. </p>
+<p><strong>Tool:</strong> Burp Suite</p>
+<p><strong>Analysis:</strong> Redundant, no action to be taken.</p>
+<p><strong>Outcome:</strong> Most Likely Deadend</p>
+<p><img alt="image.png" src="../../../images/Kioptrix/image4.png" /></p>
+<h2 id="smb-enumeration">SMB Enumeration</h2>
+<p><strong>Tool:</strong>  <code>smbclient</code> </p>
+<p><strong>Analysis:</strong> </p>
+<ul>
+<li><strong>Shares:</strong> IPC$, ADMIN$</li>
+<li><strong>Server:</strong> KIOPTRIX</li>
+<li><strong>Workgroup:</strong> MYGROUP</li>
+</ul>
+<p><strong>Action:</strong> This does not provide a direct exploit as anonymous access is not allowed.</p>
+<p><img alt="image.png" src="../../../images/Kioptrix/image5.png" /></p>
+<h2 id="ssh-test">SSH Test</h2>
+<p><strong>Analysis:</strong> SSH reliance on weaker encryption does not provide a direct exploit.</p>
+<p><img alt="image.png" src="../../../images/Kioptrix/image6.png" /></p>
+<h1 id="research-exploits">Research Exploits</h1>
+<p><em>After conducting research these exposed services provide some attack vectors.</em></p>
+<p><strong>Reference:</strong> <a href="http://exploit-db.comhttps://www.exploit-db.com/">exploit-db.com</a></p>
+<table>
+<thead>
+<tr>
+<th>Service</th>
+<th>CVE</th>
+<th>Exploits</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Apache 1.3.20</td>
+<td><a href="https://nvd.nist.gov/vuln/detail/CVE-2002-0082">CVE-2002-0082</a></td>
+<td>• <a href="https://www.exploit-db.com/exploits/764">ExploitDB Finding</a></td>
+<td></td>
+</tr>
+<tr>
+<td>• <a href="https://github.com/heltonWernik/OpenLuck?tab=readme-ov-file">Possible Exploit in GitHub</a></td>
+<td>Source code for exploit found here.</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>Samba 2.2.1a</td>
+<td><a href="https://nvd.nist.gov/vuln/detail/CVE-2003-0201">CVE-2003-0201</a></td>
+<td><a href="https://www.exploit-db.com/exploits/10">ExploitDB Finding</a></td>
+<td>An exploit could utilize Metasploit</td>
+</tr>
+<tr>
+<td>SSH V1</td>
+<td></td>
+<td></td>
+<td>Possible MiTM and Replay Attacks via Key Pair Collision in SSH V1. (More <a href="https://www.cvedetails.com/cve/CVE-2001-1473/">here</a>.)</td>
+</tr>
+</tbody>
+</table>
+<h1 id="exploitation">Exploitation</h1>
+<h2 id="samba-exploit">Samba Exploit</h2>
+<p><strong>Tool:</strong> Msfconsole</p>
+<p><strong>Vulnerability:</strong> CVE-2003-0201</p>
+<p><strong>Reference:</strong> <a href="https://github.com/security-cheatsheet/metasploit-cheat-sheet">Metasploit Cheat Sheet</a>.</p>
+<p><strong>Actions:</strong></p>
+<ul>
+<li>Exploit Samba trans2open Overflow</li>
+<li>Set payload for a reverse shell</li>
+</ul>
+<p><strong>Outcome:</strong> Exploitation of Samba provided root access</p>
+<p><img alt="image.png" src="../../../images/Kioptrix/image7.png" /></p>
+<p><img alt="image.png" src="../../../images/Kioptrix/image8.png" /></p>
+<p><img alt="image.png" src="../../../images/Kioptrix/image9.png" /></p>
+<h2 id="apache-exploit">Apache Exploit</h2>
+<p><strong>Tool:</strong> C  source code.</p>
+<p><strong>Resource:</strong> <a href="https://github.com/heltonWernik/OpenLuck?tab=readme-ov-file">GitHub Exploit - OpenLuck</a> </p>
+<p><strong>Action:</strong> </p>
+<ul>
+<li>Clone the code from the repository</li>
+<li>Compile the Source Code</li>
+</ul>
+<p><strong>Outcome:</strong> Running the compiled program provides a root shell.</p>
+<p><img alt="image.png" src="../../../images/Kioptrix/image10.png" /></p>
+<h1 id="conclusion">Conclusion</h1>
+<p><strong>Root Cause:</strong> Outdated Samba and Apache Services</p>
+<p><strong>Result:</strong> Successful root shell via Metasploit and compiled C program</p>
+<p><strong>Lessons Learned:</strong> Importance of patching legacy services and securing default shares.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
           
-          <li class="md-meta__item">
-            
-              1 min read
-            
-          </li>
-        
-      </ul>
-      
-    </div>
-  </header>
-  <div class="md-post__content md-typeset">
-    <h2 id="hello-world"><a class="toclink" href="../../2025/07/21/hello-world/">Hello World!</a></h2>
-<p>This is a first post to test and see if things are working. More to come...</p>
-    
-  </div>
-</article>
-      
-      
-        
-          
-
-
-
-<nav class="md-pagination">
-  
-</nav>
-        
-      
-    </div>
-  </div>
-
           
 <script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
         </div>
