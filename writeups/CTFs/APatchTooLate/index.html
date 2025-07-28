@@ -16,7 +16,7 @@
     
     
       
-        <title>Kioptrix - Kyle Droulard | Portfolio</title>
+        <title>A Patch Too Late - Kyle Droulard | Portfolio</title>
       
     
     
@@ -58,7 +58,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#kioptrix" class="md-skip">
+        <a href="#a-patch-too-late" class="md-skip">
           Skip to content
         </a>
       
@@ -94,7 +94,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Kioptrix
+              A Patch Too Late
             
           </span>
         </div>
@@ -283,69 +283,100 @@
 
 
 
-<h1 id="kioptrix">Kioptrix</h1>
+<h1 id="a-patch-too-late">A Patch Too Late</h1>
 <h1 id="about">About</h1>
-<p><strong>Target</strong>: Kioptrix Level 1 Virtual Machine (VM downloaded <a href="https://www.vulnhub.com/entry/kioptrix-level-1-1,22/">here</a>.)</p>
-<p><strong>Reporter:</strong> Kyle Droulard</p>
-<p><strong>Summary:</strong> During assessment, multiple legacy services were identified on the target machine. Exploitation of a known Apache vulnerability (<a href="https://nvd.nist.gov/vuln/detail/CVE-2002-0082">CVE-2002-0082</a>) resulted in root-level access. Several other misconfigurations were noted, including outdated Apache and SSH services.</p>
+<p><strong>Target</strong>: Kioptrix Level 1 (Vuln Hub download: <a href="https://www.vulnhub.com/entry/kioptrix-level-1-1,22/">here</a>)</p>
+<p><strong>Author:</strong> Kyle Droulard</p>
+<h2 id="summary">Summary</h2>
+<p>In the early 2000s, services like Apache, Samba, and SSH formed the backbone of web infrastructure. But in their earlier versions, they came with significant vulnerabilities. They serve as critical teaching tools for exploit development, service enumeration, privilege escalation and ultimately the importance of good patch management. </p>
+<p><strong>Kioptrix Level 1</strong> proves to be a good study for these vulnerable services. It’s a deliberately vulnerable Linux virtual machine emulating a pre-2005 web stack. This environment provides an understanding of how legacy misconfigurations and poor patch hygiene can give attackers full root access with minimal resistance.</p>
+<p>In this write-up, I explore the box from enumeration to exploitation, while reflecting on the legacy of the vulnerabilities that made it possible.</p>
+<h2 id="tools-used">Tools Used</h2>
+<table>
+<thead>
+<tr>
+<th>Tool</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Nmap</td>
+<td>Port &amp; service discovery</td>
+</tr>
+<tr>
+<td>Netdiscover</td>
+<td>Host discovery</td>
+</tr>
+<tr>
+<td>smbclient</td>
+<td>SMB enumeration</td>
+</tr>
+<tr>
+<td>Burp Suite</td>
+<td>Manual web testing</td>
+</tr>
+<tr>
+<td>Metasploit</td>
+<td>Exploitation</td>
+</tr>
+<tr>
+<td>GCC</td>
+<td>Compiling custom exploit</td>
+</tr>
+</tbody>
+</table>
 <h2 id="initial-discovery">Initial Discovery</h2>
-<p><strong>Action:</strong> Discover the IP for our vulnerable host</p>
-<p><strong>Tool:</strong> <a href="https://www.google.com/url?sa=t&amp;rct=j&amp;q=&amp;esrc=s&amp;source=web&amp;cd=&amp;cad=rja&amp;uact=8&amp;ved=2ahUKEwim45KTutCOAxUJlGoFHfRdEawQFnoECBkQAQ&amp;url=https%3A%2F%2Fwww.stationx.net%2Fnmap-ping-sweep%2F&amp;usg=AOvVaw3FEqmn2J1D_yUNe-PKZxuW&amp;opi=89978449">nmap ping sweep</a>, or <a href="https://www.hackercoolmagazine.com/beginners-guide-to-netdiscover/?srsltid=AfmBOopGG8It26r71ZGPr0JTNuINpMuvOY0IsTazMXT1PhVmY7qXeMu7">netdiscover</a>.</p>
-<p><img alt="image.png" src="../../../images/Kioptrix/image.png" /></p>
+<p>To locate the Kioptrix vm, I used an ARP-based discovery method by sending ARP requests across a CIDR block and identifying devices across the network.</p>
+<p><strong>Tool:</strong> <a href="https://www.google.com/url?sa=t&amp;rct=j&amp;q=&amp;esrc=s&amp;source=web&amp;cd=&amp;cad=rja&amp;uact=8&amp;ved=2ahUKEwim45KTutCOAxUJlGoFHfRdEawQFnoECBkQAQ&amp;url=https%3A%2F%2Fwww.stationx.net%2Fnmap-ping-sweep%2F&amp;usg=AOvVaw3FEqmn2J1D_yUNe-PKZxuW&amp;opi=89978449">nmap ping sweep</a>, or <a href="https://www.hackercoolmagazine.com/beginners-guide-to-netdiscover/?srsltid=AfmBOopGG8It26r71ZGPr0JTNuINpMuvOY0IsTazMXT1PhVmY7qXeMu7">netdiscover</a></p>
+<p>Once the IP address is identified we can proceed with the assessment by identifying vulnerable services running on the server with a port scan.</p>
+<p><img alt="image.png" src="../../../images/APatchTooLate/image.png" /></p>
 <h2 id="port-enumeration">Port Enumeration</h2>
-<p><strong>Action:</strong> Conduct initial discovery of vulnerable services</p>
-<p><strong>Tool:</strong> Nmap</p>
+<p>To identify vulnerable services running on the target we can run a Nmap scan. As Anti Virus is not something that we are worried about here we can run a quick scan.</p>
 <p><strong>Command:</strong> <code>nmap -T5 -A &lt;host_ip&gt;</code></p>
-<p><strong>Analysis:</strong> AV is not in play so a quick scan can be conducted </p>
 <p><strong>Additional Resources:</strong>  <a href="https://www.stationx.net/nmap-cheat-sheet/">Nmap Cheat Sheet</a></p>
-<p><img alt="image.png" src="../../../images/Kioptrix/image1.png" /></p>
-<h3 id="analysis">Analysis</h3>
-<p><strong>Observation:</strong> SSH, HTTP and SMB are exposed </p>
-<p><strong>Action:</strong> Investigate Web Exploits, File Shares and possible SSH vulnerabilities. (Brute Forcing is not allowed so Hydra will be skipped)</p>
-<h2 id="http-enumeration">HTTP Enumeration</h2>
-<p><strong>Goal:</strong> Discover possible vulnerable endpoints </p>
+<p><img alt="image.png" src="../../../images/APatchTooLate/image1.png" /></p>
+<p>From our scans we can observe that the server is running vulnerable versions of SSH, HTTP and SMB. We can proceed investigating by performing Web Enumeration, SMB Enumeration and possible SSH exploits. </p>
+<h2 id="web-enumeration">Web Enumeration</h2>
+<p>Through web enumeration we will try to discover possible vulnerable endpoints that can provide us attack surfaces. </p>
 <p><strong>Tools:</strong> Burp Suite, dirbuster or nikto.</p>
 <p><strong>Additional Resources:</strong> </p>
 <ul>
-<li>https://www.freecodecamp.org/news/an-introduction-to-web-server-scanning-with-nikto/</li>
+<li><a href="https://www.freecodecamp.org/news/an-introduction-to-web-server-scanning-with-nikto/">Nikto</a></li>
 <li><a href="https://www.kali.org/tools/dirbuster/">dirbuster | Kali Linux Tools</a></li>
 </ul>
 <h3 id="findings"><strong>Findings</strong></h3>
 <p><strong>Finding:</strong> http[://]192[.]168[.]1[.]107/manual/mod </p>
-<p><strong>Analysis:</strong> Apache modules commonly stored here. </p>
-<p><strong>Action:</strong> Nothing sensitive seems immediately exposed, this is noted for further inspection.</p>
-<p><strong>Outcome:</strong> Most Likely Deadend</p>
-<p><img alt="image.png" src="../../../images/Kioptrix/image2.png" /></p>
+<p>Our first discovery is a web page that provides Apache modules documentation. Though as no sensitive content is exposed there is no immediate value here so we will take note of it for further inspection, though it appears to be a dead end.</p>
+<p><img alt="image.png" src="../../../images/APatchTooLate/image2.png" /></p>
 <p><strong>Finding:</strong> http[://]192[.]168[.]1[.]107/test.php</p>
-<p><strong>Analysis:</strong> Appears to be executing php on the page.</p>
-<p><strong>Action:</strong> Does not seem to be a way to inject code here, this is noted for further inspection.</p>
-<p><strong>Outcome:</strong> Most Likely Deadend</p>
-<p><img alt="image.png" src="../../../images/Kioptrix/image3.png" /></p>
+<p>Our second discovery is a web page that executes PHP on the server. Though as there is no visible injection point this doesn't provide immediate value. So we will take note of this as well, though it also appears to be a dead end.</p>
+<p><img alt="image.png" src="../../../images/APatchTooLate/image3.png" /></p>
 <p><strong>Finding:</strong> Information Disclosure vulnerability. </p>
-<p><strong>Tool:</strong> Burp Suite</p>
-<p><strong>Analysis:</strong> Redundant, no action to be taken.</p>
-<p><strong>Outcome:</strong> Most Likely Deadend</p>
-<p><img alt="image.png" src="../../../images/Kioptrix/image4.png" /></p>
+<p>Our third web enumeration finding is an Information Disclosure vulnerability, which provides us that the web application is running Apache 1.3.20. However, we previously discovered that via Nmap so this doesn't provide us immediate value.</p>
+<p><img alt="image.png" src="../../../images/APatchTooLate/image4.png" /></p>
 <h2 id="smb-enumeration">SMB Enumeration</h2>
+<p>Through performing SMB enumeration we can try to discover unauthenticated access accessible file shares.</p>
 <p><strong>Tool:</strong>  <code>smbclient</code> </p>
-<p><strong>Analysis:</strong> </p>
+<p><strong>Findings:</strong> </p>
 <ul>
 <li><strong>Shares:</strong> IPC$, ADMIN$</li>
 <li><strong>Server:</strong> KIOPTRIX</li>
 <li><strong>Workgroup:</strong> MYGROUP</li>
 </ul>
-<p><strong>Action:</strong> This does not provide a direct exploit as anonymous access is not allowed.</p>
-<p><img alt="image.png" src="../../../images/Kioptrix/image5.png" /></p>
-<h2 id="ssh-test">SSH Test</h2>
-<p><strong>Analysis:</strong> SSH reliance on weaker encryption does not provide a direct exploit.</p>
-<p><img alt="image.png" src="../../../images/Kioptrix/image6.png" /></p>
+<p><strong>Outcome:</strong> No exploit path via SMB shares, but version information confirmed possible exploit targets.</p>
+<p><img alt="image.png" src="../../../images/APatchTooLate/image5.png" /></p>
+<h2 id="ssh-observations">SSH Observations</h2>
+<p>The target runs SSH version 1, which is obsolete and vulnerable to key reuse, replay and downgrade attacks. However in this context brute-force and MiTM attacks are outside of the scope for this study, so we won’t be pursuing this further.</p>
+<p><img alt="image.png" src="../../../images/APatchTooLate/image6.png" /></p>
 <h1 id="research-exploits">Research Exploits</h1>
-<p><em>After conducting research these exposed services provide some attack vectors.</em></p>
+<p>After conducting some research we can see that these exposed services are notoriously vulnerable and we can even find some known exploits within GitHub and Metasploit. </p>
 <p><strong>Reference:</strong> <a href="http://exploit-db.comhttps://www.exploit-db.com/">exploit-db.com</a></p>
 <table>
 <thead>
 <tr>
 <th>Service</th>
+<th>Version</th>
 <th>CVE</th>
 <th>Exploits</th>
 <th>Notes</th>
@@ -353,7 +384,8 @@
 </thead>
 <tbody>
 <tr>
-<td>Apache 1.3.20</td>
+<td>Apache</td>
+<td>1.3.20</td>
 <td><a href="https://nvd.nist.gov/vuln/detail/CVE-2002-0082">CVE-2002-0082</a></td>
 <td>• <a href="https://www.exploit-db.com/exploits/764">ExploitDB Finding</a></td>
 <td></td>
@@ -363,45 +395,35 @@
 <td>Source code for exploit found here.</td>
 <td></td>
 <td></td>
+<td></td>
 </tr>
 <tr>
-<td>Samba 2.2.1a</td>
+<td>Samba</td>
+<td>2.2.1a</td>
 <td><a href="https://nvd.nist.gov/vuln/detail/CVE-2003-0201">CVE-2003-0201</a></td>
 <td><a href="https://www.exploit-db.com/exploits/10">ExploitDB Finding</a></td>
 <td>An exploit could utilize Metasploit</td>
 </tr>
 <tr>
-<td>SSH V1</td>
-<td></td>
-<td></td>
+<td>OpenSSH</td>
+<td>2.9p2 (v1)</td>
+<td>N/A</td>
+<td>N/A</td>
 <td>Possible MiTM and Replay Attacks via Key Pair Collision in SSH V1. (More <a href="https://www.cvedetails.com/cve/CVE-2001-1473/">here</a>.)</td>
 </tr>
 </tbody>
 </table>
 <h1 id="exploitation">Exploitation</h1>
-<h2 id="samba-exploit">Samba Exploit</h2>
-<p><strong>Tool:</strong> Msfconsole</p>
-<p><strong>Vulnerability:</strong> CVE-2003-0201</p>
-<p><strong>Reference:</strong> <a href="https://github.com/security-cheatsheet/metasploit-cheat-sheet">Metasploit Cheat Sheet</a>.</p>
-<p><strong>Actions:</strong></p>
-<ul>
-<li>Exploit Samba trans2open Overflow</li>
-<li>Set payload for a reverse shell</li>
-</ul>
-<p><strong>Outcome:</strong> Exploitation of Samba provided root access</p>
-<p><img alt="image.png" src="../../../images/Kioptrix/image7.png" /></p>
-<p><img alt="image.png" src="../../../images/Kioptrix/image8.png" /></p>
-<p><img alt="image.png" src="../../../images/Kioptrix/image9.png" /></p>
+<p>Samba 2.2.1a has a vulnerability due to a buffer overflow in trans2open (CVE-2003-0201) we can exploit this by using Metasploit to create a reverse shell. If successfully exploited we will be able to obtain root access.</p>
+<p><strong>Tool:</strong> Metasploit</p>
+<p><strong>Reference:</strong> <a href="https://github.com/security-cheatsheet/metasploit-cheat-sheet">Metasploit Cheat</a></p>
+<p><img alt="image.png" src="../../../images/APatchTooLate/image7.png" /></p>
+<p><img alt="image.png" src="../../../images/APatchTooLate/image8.png" /></p>
+<p><img alt="image.png" src="../../../images/APatchTooLate/image9.png" /></p>
 <h2 id="apache-exploit">Apache Exploit</h2>
-<p><strong>Tool:</strong> C  source code.</p>
-<p><strong>Resource:</strong> <a href="https://github.com/heltonWernik/OpenLuck?tab=readme-ov-file">GitHub Exploit - OpenLuck</a> </p>
-<p><strong>Action:</strong> </p>
-<ul>
-<li>Clone the code from the repository</li>
-<li>Compile the Source Code</li>
-</ul>
-<p><strong>Outcome:</strong> Running the compiled program provides a root shell.</p>
-<p><img alt="image.png" src="../../../images/Kioptrix/image10.png" /></p>
+<p>Apache 1.3.20 suffers from a buffer overflow vulnerability due to Apache-SSL improperly handling memory during the <code>i2d_SSL_SESSION</code> function call. This allows for remote code execution if the attacker utilizes a very large client certificate if it is signed by a trusted Certificate Authority. We can find C source code on GitHub which we can then clone, compile it and run against our target machine to obtain a root shell.</p>
+<p><strong>Resource:</strong> <a href="https://github.com/heltonWernik/OpenLuck?tab=readme-ov-file">GitHub Exploit - OpenLuck</a></p>
+<p><img alt="image.png" src="../../../images/APatchTooLate/image10.png" /></p>
 <h1 id="conclusion">Conclusion</h1>
 <p><strong>Root Cause:</strong> Outdated Samba and Apache Services</p>
 <p><strong>Result:</strong> Successful root shell via Metasploit and compiled C program</p>
